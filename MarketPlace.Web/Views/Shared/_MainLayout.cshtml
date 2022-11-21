@@ -1,0 +1,31 @@
+﻿
+<!DOCTYPE html>
+<html class="no-js" lang="fa" dir="rtl">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>فروشگاه ساز | @ViewData["Title"]</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <partial name="_HeaderReferences" />
+    @RenderSection(name:"styles", required:false)
+
+</head>
+
+<body>
+
+    @await Component.InvokeAsync(name:"SiteHeader")
+
+    @RenderBody()
+
+    @await Component.InvokeAsync(name:"SiteFooter")
+
+    <partial name="_FooterReferences" />
+    @RenderSection(name:"scripts",required:false)
+    <partial name="_SiteMessages" />
+
+</body>
+
+</html>
