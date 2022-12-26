@@ -1,7 +1,22 @@
 ﻿@using MarketPlace.Application.Utils
+@using MarketPlace.DataLayer.DTOs.Orders;
 @model MarketPlace.DataLayer.DTOs.Products.ProductDetailDTO
 @{
     ViewData["Title"] = Model.Title;
+}
+
+@section scripts
+{
+	<partial name="_JqueryValidators" />
+	@if (Model.ProductColors != null && Model.ProductColors.Any())
+	{
+		var firstColor = Model.ProductColors.FirstOrDefault();
+		<script>
+			$(document).ready(function() {
+				changeProductPriceBasedOnColor(@firstColor.Id, @firstColor.Price, "@firstColor.ColorName");
+			});
+		</script>
+	}
 }
 
 <!--breadcrumbs area start-->
@@ -24,6 +39,9 @@
 	<!--product details start-->
 	<div class="product_details mt-60 mb-60">
 		<div class="container">
+			<div class="row">
+				<partial name="_AddProductToCartPartial" model="@(new AddProductToOrderDTO{Count = 1, ProductId = Model.ProductId})" />
+			</div>
 			<div class="row">
 				<div class="col-lg-6 col-md-6">
 					<div class="product-details-tab">
@@ -58,8 +76,7 @@
 				</div>
 				<div class="col-lg-6 col-md-6">
 					<div class="product_d_right">
-						<form action="#">
-
+						
 							<h1>@Model.Title</h1>
 							
 							<div class=" product_ratting">
@@ -99,7 +116,7 @@
 									@foreach (var color in Model.ProductColors)
 									{
 										<li style="background: @color.ColorCode">
-										<a onclick="changeProductPriceBasedOnColor(@color.Price, '@color.ColorName')"></a>
+										<a onclick="changeProductPriceBasedOnColor(@color.Id, @color.Price, '@color.ColorName')"></a>
 									</li>
 									}
 								</ul>
@@ -107,8 +124,8 @@
 							}
 							<div class="product_variant quantity">
 								<label>تعداد</label>
-								<input min="1" max="100" value="1" type="number">
-								<button class="button" type="submit">افزودن به سبد</button>
+								<input min="1" max="100" value="1" type="number" id="number_of_products_in_basket">
+								<button class="button" type="submit" id="submitOrderForm">افزودن به سبد</button>
 
 							</div>
 							<div class=" product_d_action">
@@ -120,8 +137,7 @@
 							<div class="product_meta">
 								<span>دسته: <a href="#">پوشاک</a></span>
 							</div>
-
-						</form>
+							
 						<div class="priduct_social">
 							<ul>
 								<li><a class="facebook" href="#" title="فیسبوک"><i class="fa fa-facebook"></i> لایک</a></li>

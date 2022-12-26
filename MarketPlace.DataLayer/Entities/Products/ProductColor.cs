@@ -1,4 +1,5 @@
 ﻿using MarketPlace.DataLayer.Entities.Common;
+using MarketPlace.DataLayer.Entities.ProductOrder;
 using System.ComponentModel.DataAnnotations;
 using System.Xml.Linq;
 
@@ -29,5 +30,7 @@ public class ProductColor : BaseEntity
 
 	public Product Product { get; set; }
 
-	#endregion
+    public ICollection<OrderDetail> OrderDetails { get; set; }
+
+    #endregion
 }

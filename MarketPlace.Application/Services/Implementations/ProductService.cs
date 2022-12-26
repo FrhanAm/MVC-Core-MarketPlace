@@ -356,6 +356,7 @@ public class ProductService : IProductService
 
         return new ProductDetailDTO
         {
+            ProductId = productId,
             Title = product.Title,
             Price = product.Price,
             ImageName = product.ImageName,

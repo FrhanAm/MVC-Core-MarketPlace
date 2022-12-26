@@ -1,4 +1,17 @@
-﻿function ShowMessage(title, text, theme) {
+﻿function open_waiting(selector = 'body') {
+    $(selector).waitMe({
+        effect: 'facebook',
+        text: 'لطفا صبر کنید ...',
+        bg: 'rgba(255,255,255,0.7)',
+        color: '#000'
+    });
+}
+
+function close_waiting(selector = 'body') {
+    $(selector).waitMe('hide');
+}
+
+function ShowMessage(title, text, theme) {
     window.createNotification({
         closeOnClick: true,
         displayCloseButton: false,
@@ -114,7 +127,7 @@ $("#add_color_button").on("click", function (e) {
         } else {
             ShowMessage("اخطار", "رنگ وارد شده تکراری می باشد", "warning");
             $("#product_color_name_input").val("").focus();
-        }     
+        }
     } else {
         ShowMessage("اخطار", "لطفا نام رنگ و قیمت آن را به درستی وارد نمایید", "warning");
     }
@@ -187,7 +200,7 @@ function reOrderProductFeatureHiddenInputs() {
     $.each(hiddenFeatures, function (index, value) {
         var hiddenFeature = $(value);
         var featureId = $(value).attr('feature-hidden-input');
-        var hiddenfeatureValue = $('[feature-value-hidden-input="' + featureId  + '"]');
+        var hiddenfeatureValue = $('[feature-value-hidden-input="' + featureId + '"]');
         $(hiddenFeature).attr('name', 'ProductFeatures[' + index + '].Feature');
         $(hiddenfeatureValue).attr('name', 'ProductFeatures[' + index + '].FeatureValue');
     });
@@ -197,7 +210,27 @@ $("#OrderBy").on("change", function () {
     $("#filter-form").submit();
 });
 
-function changeProductPriceBasedOnColor(priceOfColor, colorName) {
+function changeProductPriceBasedOnColor(colorId, priceOfColor, colorName) {
     const basePrice = parseInt($("#ProductBasePrice").val(), 0);
     $(".current_price").html((basePrice + priceOfColor) + " تومان" + " ( " + colorName + " )");
+    $("#add_product_to_order_ProductColorId").val(colorId);
 }
+
+$("#number_of_products_in_basket").on("change", function (e) {
+    var numberOfProduct = parseInt(e.target.value, 0);
+    $("#add_product_to_order_Count").val(numberOfProduct);
+});
+
+function onSuccessAddProductToOrder(res) {
+    if (res.status == "Success")
+        ShowMessage("اعلان", res.message, res.status.toLowerCase());
+    else
+        ShowMessage("اعلان", res.message, "warning");
+
+    close_waiting();
+}
+
+$("#submitOrderForm").on("click", function () {
+    $("#addProductToOrderForm").submit();
+    open_waiting();
+});

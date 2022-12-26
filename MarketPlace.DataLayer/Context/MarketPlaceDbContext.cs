@@ -1,5 +1,6 @@
 ﻿using MarketPlace.DataLayer.Entities.Account;
 using MarketPlace.DataLayer.Entities.Contacts;
+using MarketPlace.DataLayer.Entities.ProductOrder;
 using MarketPlace.DataLayer.Entities.Products;
 using MarketPlace.DataLayer.Entities.Site;
 using MarketPlace.DataLayer.Entities.Store;
@@ -46,6 +47,14 @@ namespace MarketPlace.DataLayer.Context
         public DbSet<ProductSelectedCategory> ProductSelectedCategories { get; set; }
         public DbSet<ProductColor> ProductColors { get; set; }
         public DbSet<ProductFeature> ProductFeatures { get; set; }
+
+        #endregion
+
+        #region order
+
+        public DbSet<Order> Orders { get; set; }
+
+        public DbSet<OrderDetail> OrderDetails { get; set; }
 
         #endregion
 

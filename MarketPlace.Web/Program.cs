@@ -30,6 +30,7 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IContactService, ContactService>();
 builder.Services.AddScoped<ISellerService, SellerService>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IOrderServcie, OrderService>();
 
 #endregion
 

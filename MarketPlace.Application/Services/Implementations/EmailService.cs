@@ -4,7 +4,6 @@ using MarketPlace.Application.Services.Interfaces;
 using MarketPlace.DataLayer.DTOs.Email;
 using Microsoft.Extensions.Options;
 using MimeKit;
-using System.Net;
 
 namespace MarketPlace.Application.Services.Implementations
 {

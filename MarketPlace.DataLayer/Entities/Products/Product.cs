@@ -1,4 +1,5 @@
 ﻿using MarketPlace.DataLayer.Entities.Common;
+using MarketPlace.DataLayer.Entities.ProductOrder;
 using MarketPlace.DataLayer.Entities.Store;
 using System.ComponentModel.DataAnnotations;
 using System.Xml.Linq;
@@ -51,6 +52,7 @@ public class Product : BaseEntity
     public ICollection<ProductGallery> ProductGalleries { get; set; }
     public Seller Seller { get; set; }
     public ICollection<ProductFeature> ProductFeatures { get; set; }
+    public ICollection<OrderDetail> OrderDetails { get; set; }
 
     #endregion
 }
