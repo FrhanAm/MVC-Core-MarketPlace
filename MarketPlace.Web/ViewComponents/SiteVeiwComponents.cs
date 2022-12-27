@@ -1,75 +1,95 @@
 ﻿using MarketPlace.Application.Services.Interfaces;
+using MarketPlace.Web.PresentationExtensions;
 using Microsoft.AspNetCore.Mvc;
 
-namespace MarketPlace.Web.ViewComponents
+namespace MarketPlace.Web.ViewComponents;
+
+#region site header
+
+public class SiteHeader : ViewComponent
 {
-    #region site header
+    private readonly ISiteService _siteService;
+    private readonly IUserService _userService;
+    private readonly IProductService _productService;
 
-    public class SiteHeader : ViewComponent
+    public SiteHeader(ISiteService siteService, IUserService userService, IProductService productService)
     {
-        private readonly ISiteService _siteService;
-        private readonly IUserService _userService;
-        private readonly IProductService _productService;
-
-        public SiteHeader(ISiteService siteService, IUserService userService, IProductService productService)
-        {
-            _siteService = siteService;
-            _userService = userService;
-            _productService = productService;
-        }
-
-        public async Task<IViewComponentResult> InvokeAsync()
-        {
-            ViewBag.siteSetting = await _siteService.GetDefaultSiteSetting();
-            ViewBag.user = null;
-
-            if (User.Identity.IsAuthenticated)
-                ViewBag.user = await _userService.GetUserByEmail(User.Identity.Name);
-
-            ViewBag.productCategories = await _productService.GetAllActiveProductCategories();
-
-            return View("SiteHeader");
-        }
+        _siteService = siteService;
+        _userService = userService;
+        _productService = productService;
     }
 
-    #endregion
-
-    #region site footer
-
-    public class SiteFooter : ViewComponent
+    public async Task<IViewComponentResult> InvokeAsync()
     {
-        private readonly ISiteService _siteService;
+        ViewBag.siteSetting = await _siteService.GetDefaultSiteSetting();
+        ViewBag.user = null;
 
-        public SiteFooter(ISiteService siteService)
-        {
-            _siteService = siteService;
-        }
-        public async Task<IViewComponentResult> InvokeAsync()
-        {
-            ViewBag.siteSetting = await _siteService.GetDefaultSiteSetting();
-            return View("SiteFooter");
-        }
+        if (User.Identity.IsAuthenticated)
+            ViewBag.user = await _userService.GetUserByEmail(User.Identity.Name);
+
+        ViewBag.productCategories = await _productService.GetAllActiveProductCategories();
+
+        return View("SiteHeader");
     }
-
-    #endregion
-
-    #region home sliders
-
-    public class HomeSlider : ViewComponent
-    {
-        private readonly ISiteService _siteService;
-
-        public HomeSlider(ISiteService siteService)
-        {
-            _siteService= siteService;
-        }
-
-        public async Task<IViewComponentResult> InvokeAsync()
-        {
-            var sliders = await _siteService.GetAllActiveSliders();
-            return View("HomeSlider", sliders);
-        }
-    }
-
-    #endregion
 }
+
+#endregion
+
+#region site footer
+
+public class SiteFooter : ViewComponent
+{
+    private readonly ISiteService _siteService;
+
+    public SiteFooter(ISiteService siteService)
+    {
+        _siteService = siteService;
+    }
+    public async Task<IViewComponentResult> InvokeAsync()
+    {
+        ViewBag.siteSetting = await _siteService.GetDefaultSiteSetting();
+        return View("SiteFooter");
+    }
+}
+
+#endregion
+
+#region home sliders
+
+public class HomeSlider : ViewComponent
+{
+    private readonly ISiteService _siteService;
+
+    public HomeSlider(ISiteService siteService)
+    {
+        _siteService= siteService;
+    }
+
+    public async Task<IViewComponentResult> InvokeAsync()
+    {
+        var sliders = await _siteService.GetAllActiveSliders();
+        return View("HomeSlider", sliders);
+    }
+}
+
+#endregion
+
+#region user order
+
+public class UserOrderViewComponent : ViewComponent
+{
+    private readonly IOrderServcie _orderService;
+
+    public UserOrderViewComponent(IOrderServcie orderService)
+    {
+        _orderService = orderService;
+    }
+
+    public async Task<IViewComponentResult> InvokeAsync()
+    {
+        var openOrder = await _orderService.GetUserOpenOrderDetail(User.GetUserId());
+        return View("UserOrder", openOrder);
+    }
+}
+
+#endregion

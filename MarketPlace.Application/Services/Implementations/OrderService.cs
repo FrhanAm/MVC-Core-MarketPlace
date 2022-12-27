@@ -42,6 +42,9 @@ public class OrderService : IOrderServcie
 
         var userOpenOrder = await _orderRepository.GetQuery()
             .Include(x => x.OrderDetails)
+            .ThenInclude(x => x.ProductColor)
+            .Include(x => x.OrderDetails)
+            .ThenInclude(x => x.Product)
             .SingleOrDefaultAsync(x => x.UserId == userId && !x.IsPaid);
 
         if (userOpenOrder == null)
@@ -60,7 +63,7 @@ public class OrderService : IOrderServcie
     {
         var openOrder = await GetUserLatestOpenOrder(userId);
 
-        var similarOrder = openOrder.OrderDetails.SingleOrDefault(x => x.ProductId == order.ProductId 
+        var similarOrder = openOrder.OrderDetails.SingleOrDefault(x => x.ProductId == order.ProductId
                             && x.ProductColorId == order.ProductColorId);
 
         if (similarOrder == null)
@@ -75,12 +78,34 @@ public class OrderService : IOrderServcie
 
             await _orderDetailRepository.AddEntity(orderDetail);
             await _orderDetailRepository.SaveChanges();
-        } else
+        }
+        else
         {
             similarOrder.Count += order.Count;
             await _orderDetailRepository.SaveChanges();
         }
 
+    }
+
+    public async Task<UserOpenOrderDTO> GetUserOpenOrderDetail(long userId)
+    {
+        var userOpenOrder = await GetUserLatestOpenOrder(userId);
+        return new UserOpenOrderDTO
+        {
+            UserId = userOpenOrder.Id,
+            Description = userOpenOrder.Description,
+            Details = userOpenOrder.OrderDetails.Select(x => new UserOpenOrderDetailItemDTO
+            {
+                Count = x.Count,
+                ColorName = x.ProductColor?.ColorName,
+                ProductColorId = x.ProductColorId,
+                ProductColorPrice = x.ProductColor?.Price ?? 0,
+                ProductId = x.ProductId,
+                ProductPrice = x.Product.Price,
+                ProductTitle = x.Product.Title,
+                ProductImageName = x.Product.ImageName,
+            }).ToList(),
+        };
     }
 
     #endregion

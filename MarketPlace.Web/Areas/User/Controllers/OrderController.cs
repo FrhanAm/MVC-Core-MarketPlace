@@ -1,4 +1,5 @@
-﻿using MarketPlace.Application.Services.Interfaces;
+﻿using MarketPlace.Application.Services.Implementations;
+using MarketPlace.Application.Services.Interfaces;
 using MarketPlace.DataLayer.DTOs.Orders;
 using MarketPlace.Web.Http;
 using MarketPlace.Web.PresentationExtensions;
@@ -11,12 +12,12 @@ public class OrderController : UserBaseController
 {
 	#region constructor
 
-	private readonly IOrderServcie _orderServcie;
+	private readonly IOrderServcie _orderService;
 	private readonly IUserService _userService;
 
     public OrderController(IOrderServcie orderServcie, IUserService userService)
     {
-        _orderServcie = orderServcie;
+        _orderService = orderServcie;
         _userService = userService;
     }
 
@@ -32,7 +33,7 @@ public class OrderController : UserBaseController
         {
             if (User.Identity.IsAuthenticated)
             {
-                await _orderServcie.AddProductToOpenOrder(User.GetUserId(), order);
+                await _orderService.AddProductToOpenOrder(User.GetUserId(), order);
                 return JsonResponseStatus.SendStatus(
                     JsonResponseStatusType.Success,
                     "محصول مورد نظر با موفقیت ثبت شد");
@@ -47,6 +48,17 @@ public class OrderController : UserBaseController
 
         return JsonResponseStatus.SendStatus(JsonResponseStatusType.Danger,
             "در ثبت اطلاعات خطایی رخ داد");
+    }
+
+    #endregion
+
+    #region open cart
+
+    [HttpGet("open-order")]
+    public async Task<IActionResult> UserOpenOrder()
+    {
+		var openOrder = await _orderService.GetUserOpenOrderDetail(User.GetUserId());
+		return View(openOrder);
     }
 
     #endregion

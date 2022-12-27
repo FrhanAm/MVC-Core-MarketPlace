@@ -1,5 +1,6 @@
 ﻿using MarketPlace.DataLayer.Entities.Account;
 using MarketPlace.DataLayer.Entities.Common;
+using MarketPlace.DataLayer.Entities.Wallet;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -53,6 +54,8 @@ public class Seller : BaseEntity
     #region relations
 
     public User User { get; set; }
+
+    public ICollection<SellerWallet> SellerWallets { get; set; }
 
     #endregion
 }
