@@ -9,6 +9,8 @@ public interface IOrderServcie : IAsyncDisposable
 
 	Task<long> AddOrderForUser(long userId);
 	Task<Order> GetUserLatestOpenOrder(long userId);
+	Task<int> GetTotlaOrderPriceForPayment(long userId);
+	Task PayOrderProductPriceToSeller(long userId);
 
 	#endregion
 

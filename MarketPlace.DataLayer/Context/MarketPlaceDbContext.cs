@@ -51,6 +51,13 @@ namespace MarketPlace.DataLayer.Context
 
         #endregion
 
+        #region product discount
+
+        public DbSet<ProductDiscount> ProductDiscounts { get; set; }
+        public DbSet<ProductDiscountUse> ProductDiscountUses { get; set; }
+
+        #endregion
+
         #region order
 
         public DbSet<Order> Orders { get; set; }
