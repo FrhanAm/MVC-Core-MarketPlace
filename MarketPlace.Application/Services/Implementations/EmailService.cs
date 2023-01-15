@@ -5,55 +5,54 @@ using MarketPlace.DataLayer.DTOs.Email;
 using Microsoft.Extensions.Options;
 using MimeKit;
 
-namespace MarketPlace.Application.Services.Implementations
+namespace MarketPlace.Application.Services.Implementations;
+
+public class EmailService : IEmailService
 {
-    public class EmailService : IEmailService
+    private readonly MailSettingsDTO _mailSettings;
+
+    public EmailService(IOptions<MailSettingsDTO> mailSettings)
     {
-        private readonly MailSettingsDTO _mailSettings;
+        _mailSettings = mailSettings.Value;
+    }
 
-        public EmailService(IOptions<MailSettingsDTO> mailSettings)
+    public async Task SendVerificationEmail(string email, string activationCode)
+    {
+        var message = new MimeMessage();
+        message.Sender = MailboxAddress.Parse(_mailSettings.Mail);
+        message.To.Add(MailboxAddress.Parse(email));
+        message.Subject = "Verifivation Code";
+        message.Body = new TextPart("plain")
         {
-            _mailSettings = mailSettings.Value;
-        }
+            Text = $"Your Verification Code is: {activationCode}"
+        };
 
-        public async Task SendVerificationEmail(string email, string activationCode)
+        var client = new SmtpClient();
+
+        await client.ConnectAsync(_mailSettings.Host, _mailSettings.Port, SecureSocketOptions.StartTls);
+        await client.AuthenticateAsync(_mailSettings.Mail, _mailSettings.Password);
+        await client.SendAsync(message);
+        await client.DisconnectAsync(true);
+        client.Dispose();
+    }
+
+    public async Task SendUserPasswordEmail(string email, string password)
+    {
+        var message = new MimeMessage();
+        message.Sender = MailboxAddress.Parse(_mailSettings.Mail);
+        message.To.Add(MailboxAddress.Parse(email));
+        message.Subject = "Verifivation Code";
+        message.Body = new TextPart("plain")
         {
-            var message = new MimeMessage();
-            message.Sender = MailboxAddress.Parse(_mailSettings.Mail);
-            message.To.Add(MailboxAddress.Parse(email));
-            message.Subject = "Verifivation Code";
-            message.Body = new TextPart("plain")
-            {
-                Text = $"Your Verification Code is: {activationCode}"
-            };
+            Text = $"Your Password is: {password}"
+        };
 
-            var client = new SmtpClient();
+        var client = new SmtpClient();
 
-            await client.ConnectAsync(_mailSettings.Host, _mailSettings.Port, SecureSocketOptions.StartTls);
-            await client.AuthenticateAsync(_mailSettings.Mail, _mailSettings.Password);
-            await client.SendAsync(message);
-            await client.DisconnectAsync(true);
-            client.Dispose();
-        }
-
-        public async Task SendUserPasswordEmail(string email, string password)
-        {
-            var message = new MimeMessage();
-            message.Sender = MailboxAddress.Parse(_mailSettings.Mail);
-            message.To.Add(MailboxAddress.Parse(email));
-            message.Subject = "Verifivation Code";
-            message.Body = new TextPart("plain")
-            {
-                Text = $"Your Password is: {password}"
-            };
-
-            var client = new SmtpClient();
-
-            await client.ConnectAsync(_mailSettings.Host, _mailSettings.Port, SecureSocketOptions.StartTls);
-            await client.AuthenticateAsync(_mailSettings.Mail, _mailSettings.Password);
-            await client.SendAsync(message);
-            await client.DisconnectAsync(true);
-            client.Dispose();
-        }
+        await client.ConnectAsync(_mailSettings.Host, _mailSettings.Port, SecureSocketOptions.StartTls);
+        await client.AuthenticateAsync(_mailSettings.Mail, _mailSettings.Password);
+        await client.SendAsync(message);
+        await client.DisconnectAsync(true);
+        client.Dispose();
     }
 }

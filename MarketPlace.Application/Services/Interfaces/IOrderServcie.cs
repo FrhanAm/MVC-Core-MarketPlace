@@ -20,5 +20,9 @@ public interface IOrderServcie : IAsyncDisposable
 
 	Task<UserOpenOrderDTO> GetUserOpenOrderDetail(long userId);
 
+	Task ChangeOrderDetailCount(long detailId, long userId, int count);
+
+	Task<bool> RemoveOrderDetail(long detailId, long userId);
+
 	#endregion
 }

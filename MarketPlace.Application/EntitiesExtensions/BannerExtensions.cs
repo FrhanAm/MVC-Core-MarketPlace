@@ -6,13 +6,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MarketPlace.Application.EntitiesExtensions
+namespace MarketPlace.Application.EntitiesExtensions;
+
+public static class BannerExtensions
 {
-    public static class BannerExtensions
+    public static string GetBannerMainImageAddress(this SiteBanner banner)
     {
-        public static string GetBannerMainImageAddress(this SiteBanner banner)
-        {
-            return PathExtension.BannerOrigin + banner.ImageName;
-        }
+        return PathExtension.BannerOrigin + banner.ImageName;
     }
 }

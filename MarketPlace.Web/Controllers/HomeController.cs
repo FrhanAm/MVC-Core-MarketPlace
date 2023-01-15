@@ -5,80 +5,79 @@ using MarketPlace.DataLayer.Entities.Site;
 using MarketPlace.Web.PresentationExtensions;
 using Microsoft.AspNetCore.Mvc;
 
-namespace MarketPlace.Web.Controllers
+namespace MarketPlace.Web.Controllers;
+
+public class HomeController : SiteBaseController
 {
-    public class HomeController : SiteBaseController
+    #region constructor
+
+    private readonly IContactService _contactService;
+    private readonly ICaptchaValidator _captchaValidator;
+    private readonly ISiteService _siteService;
+
+    public HomeController(IContactService contactService, ICaptchaValidator captchaValidator
+        , ISiteService siteService)
     {
-        #region constructor
+        _contactService = contactService;
+        _captchaValidator = captchaValidator;
+        _siteService = siteService;
+    }
 
-        private readonly IContactService _contactService;
-        private readonly ICaptchaValidator _captchaValidator;
-        private readonly ISiteService _siteService;
+    #endregion
 
-        public HomeController(IContactService contactService, ICaptchaValidator captchaValidator
-            , ISiteService siteService)
+    #region index
+
+    public async Task<IActionResult> Index()
+    {
+        ViewBag.banners = await _siteService.GetSiteBannerByPlacement(new List<BannerPlacement>
         {
-            _contactService = contactService;
-            _captchaValidator = captchaValidator;
-            _siteService = siteService;
-        }
+            BannerPlacement.Home_1,
+            BannerPlacement.Home_2,
+            BannerPlacement.Home_3
+        });
 
-        #endregion
+        return View();
+    }
 
-        #region index
+    #endregion
 
-        public async Task<IActionResult> Index()
+    #region contact us
+
+    [HttpGet("contact-us")]
+    public IActionResult ContactUs()
+    {
+        return View();
+    }
+
+    [HttpPost("contact-us"), ValidateAntiForgeryToken]
+    public async Task<IActionResult> ContactUs(CreateContactUsDTO contact)
+    {
+        if (!await _captchaValidator.IsCaptchaPassedAsync(contact.Captcha))
         {
-            ViewBag.banners = await _siteService.GetSiteBannerByPlacement(new List<BannerPlacement>
-            {
-                BannerPlacement.Home_1,
-                BannerPlacement.Home_2,
-                BannerPlacement.Home_3
-            });
-
-            return View();
-        }
-
-        #endregion
-
-        #region contact us
-
-        [HttpGet("contact-us")]
-        public IActionResult ContactUs()
-        {
-            return View();
-        }
-
-        [HttpPost("contact-us"), ValidateAntiForgeryToken]
-        public async Task<IActionResult> ContactUs(CreateContactUsDTO contact)
-        {
-            if (!await _captchaValidator.IsCaptchaPassedAsync(contact.Captcha))
-            {
-                TempData[ErrorMessage] = "کد کپچای شما نا معتبر است";
-                return View(contact);
-            }
-
-            if (ModelState.IsValid)
-            {
-                await _contactService.CreateContactUs(contact, HttpContext.GetUserIp(), User.GetUserId());
-                TempData[SuccessMessage] = "پیام شما با موفقیت ارسال شد";
-                return RedirectToAction("ContactUs");
-            }
-
+            TempData[ErrorMessage] = "کد کپچای شما نا معتبر است";
             return View(contact);
         }
 
-        #endregion
-
-        #region about us
-
-        [HttpGet("about-us")]
-        public async Task<IActionResult> AboutUs()
+        if (ModelState.IsValid)
         {
-            var siteSettings = await _siteService.GetDefaultSiteSetting();
-            return View(siteSettings);
+            await _contactService.CreateContactUs(contact, HttpContext.GetUserIp(), User.GetUserId());
+            TempData[SuccessMessage] = "پیام شما با موفقیت ارسال شد";
+            return RedirectToAction("ContactUs");
         }
 
-        #endregion
+        return View(contact);
     }
+
+    #endregion
+
+    #region about us
+
+    [HttpGet("about-us")]
+    public async Task<IActionResult> AboutUs()
+    {
+        var siteSettings = await _siteService.GetDefaultSiteSetting();
+        return View(siteSettings);
+    }
+
+    #endregion
 }

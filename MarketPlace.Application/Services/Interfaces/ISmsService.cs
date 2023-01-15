@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MarketPlace.Application.Services.Interfaces
+namespace MarketPlace.Application.Services.Interfaces;
+
+public interface ISmsService
 {
-    public interface ISmsService
-    {
-        Task SendVerificationSms(string mobile, string activationCode);
-        Task SendUserPasswordSms(string mobile, string password);
-    }
+    Task SendVerificationSms(string mobile, string activationCode);
+    Task SendUserPasswordSms(string mobile, string password);
 }

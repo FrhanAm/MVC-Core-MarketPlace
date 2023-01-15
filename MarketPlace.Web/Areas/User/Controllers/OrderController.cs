@@ -10,10 +10,10 @@ namespace MarketPlace.Web.Areas.User.Controllers;
 
 public class OrderController : UserBaseController
 {
-	#region constructor
+    #region constructor
 
-	private readonly IOrderServcie _orderService;
-	private readonly IUserService _userService;
+    private readonly IOrderServcie _orderService;
+    private readonly IUserService _userService;
 
     public OrderController(IOrderServcie orderServcie, IUserService userService)
     {
@@ -52,13 +52,45 @@ public class OrderController : UserBaseController
 
     #endregion
 
-    #region open cart
+    #region open order
 
     [HttpGet("open-order")]
     public async Task<IActionResult> UserOpenOrder()
     {
-		var openOrder = await _orderService.GetUserOpenOrderDetail(User.GetUserId());
-		return View(openOrder);
+        var openOrder = await _orderService.GetUserOpenOrderDetail(User.GetUserId());
+        return View(openOrder);
+    }
+
+    #endregion
+
+    #region open order partial
+
+    [HttpGet("change-detail-count/{detailId}/{count}")]
+    public async Task<IActionResult> ChangeDetailCount(long detailId, int count)
+    {
+        await _orderService.ChangeOrderDetailCount(detailId, User.GetUserId(), count);
+        var openOrder = await _orderService.GetUserOpenOrderDetail(User.GetUserId());
+        return PartialView(openOrder);
+    }
+
+    #endregion
+
+    #region remove product from order
+
+    [HttpGet("remove-order-item/{detailId}")]
+    public async Task<IActionResult> RemoveProductFromOrder(long detailId)
+    {
+        var res = await _orderService.RemoveOrderDetail(detailId, User.GetUserId());
+        if (res)
+        {
+            TempData[SuccessMessage] = "محصول مورد نظر با موفقیت از سبد خرید حذف شد";
+            return JsonResponseStatus.SendStatus(JsonResponseStatusType.Success, "محصول مورد نظر با موفقیت از سبد خرید حذف شد", null);
+        }
+        else
+        {
+            TempData[ErrorMessage] = "محصول مورد نظر در سبد خرید شما یافت نشد";
+            return JsonResponseStatus.SendStatus(JsonResponseStatusType.Danger, "محصول مورد نظر در سبد خرید شما یافت نشد", null);
+        }
     }
 
     #endregion

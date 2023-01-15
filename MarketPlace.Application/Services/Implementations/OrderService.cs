@@ -49,6 +49,7 @@ public class OrderService : IOrderServcie
             .ThenInclude(x => x.ProductColor)
             .Include(x => x.OrderDetails)
             .ThenInclude(x => x.Product)
+            .ThenInclude(x => x.ProductDiscounts)
             .SingleOrDefaultAsync(x => x.UserId == userId && !x.IsPaid);
 
         return userOpenOrder;
@@ -139,8 +140,11 @@ public class OrderService : IOrderServcie
         {
             UserId = userOpenOrder.Id,
             Description = userOpenOrder.Description,
-            Details = userOpenOrder.OrderDetails.Select(x => new UserOpenOrderDetailItemDTO
+            Details = userOpenOrder.OrderDetails
+            .Where(x => !x.IsDeleted)
+            .Select(x => new UserOpenOrderDetailItemDTO
             {
+                DetailId = x.Id,
                 Count = x.Count,
                 ColorName = x.ProductColor?.ColorName,
                 ProductColorId = x.ProductColorId,
@@ -149,8 +153,41 @@ public class OrderService : IOrderServcie
                 ProductPrice = x.Product.Price,
                 ProductTitle = x.Product.Title,
                 ProductImageName = x.Product.ImageName,
+                DiscountPercentage = x.Product.ProductDiscounts
+                .OrderByDescending(y => y.CreateDate)
+                .FirstOrDefault(y => y.ExpireDate > DateTime.Now)?.Percentage
             }).ToList(),
         };
+    }
+
+    public async Task ChangeOrderDetailCount(long detailId, long userId, int count)
+    {
+        var userOpenOrder = await GetUserLatestOpenOrder(userId);
+        var detail = userOpenOrder.OrderDetails.SingleOrDefault(x => x.Id == detailId);
+        if (detail != null)
+        {
+            if (count > 0)
+            {
+                detail.Count = count;
+            }
+            else
+            {
+                _orderDetailRepository.DeleteEntity(detail);
+            }
+            await _orderDetailRepository.SaveChanges();
+        }
+    }
+
+    public async Task<bool> RemoveOrderDetail(long detailId, long userId)
+    {
+        var openOrder = await GetUserLatestOpenOrder(userId);
+        var orderDetail = openOrder.OrderDetails.SingleOrDefault(x => x.Id == detailId);
+        if (orderDetail == null) return false;
+
+        _orderDetailRepository.DeleteEntity(orderDetail);
+        await _orderDetailRepository.SaveChanges();
+
+        return true;
     }
 
     #endregion

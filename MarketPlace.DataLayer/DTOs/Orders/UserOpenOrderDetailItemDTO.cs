@@ -8,6 +8,8 @@ namespace MarketPlace.DataLayer.DTOs.Orders;
 
 public class UserOpenOrderDetailItemDTO
 {
+    public long DetailId { get; set; }
+
     public long ProductId { get; set; }
 
     public string ProductTitle { get; set; }
@@ -23,4 +25,6 @@ public class UserOpenOrderDetailItemDTO
     public int ProductColorPrice { get; set; }
 
     public string? ColorName { get; set; }
+
+    public int? DiscountPercentage { get; set; }
 }

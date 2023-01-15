@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace MarketPlace.DataLayer.DTOs.Email;
 
-namespace MarketPlace.DataLayer.DTOs.Email
+public class MailSettingsDTO
 {
-    public class MailSettingsDTO
-    {
-        public string Mail { get; set; }
-        public string DisplayName { get; set; }
-        public string Password { get; set; }
-        public string Host { get; set; }
-        public int Port { get; set; }
-    }
+    public string Mail { get; set; }
+    public string DisplayName { get; set; }
+    public string Password { get; set; }
+    public string Host { get; set; }
+    public int Port { get; set; }
 }

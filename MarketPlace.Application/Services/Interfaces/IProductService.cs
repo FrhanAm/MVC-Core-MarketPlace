@@ -19,6 +19,7 @@ public interface IProductService : IAsyncDisposable
     Task RemoveAllProductSelectedColors(long productId);
     Task AddProductSelectedCategories(long productId, List<long> selectedCategories);
     Task AddProductSelectedColors(long productId, List<CreateProductColorDTO> colors);
+    Task<List<Product>> FilterGetProductsForSellerByProductName(string productName, long sellerId);
 
     #endregion
 

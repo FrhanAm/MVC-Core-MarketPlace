@@ -1,8 +1,7 @@
-﻿namespace MarketPlace.Application.Services.Interfaces
+﻿namespace MarketPlace.Application.Services.Interfaces;
+
+public interface IEmailService
 {
-    public interface IEmailService
-    {
-        Task SendVerificationEmail(string email, string activationCode);
-        Task SendUserPasswordEmail(string email, string password);
-    }
+    Task SendVerificationEmail(string email, string activationCode);
+    Task SendUserPasswordEmail(string email, string password);
 }

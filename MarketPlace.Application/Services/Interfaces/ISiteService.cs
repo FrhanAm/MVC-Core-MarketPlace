@@ -5,26 +5,25 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MarketPlace.Application.Services.Interfaces
+namespace MarketPlace.Application.Services.Interfaces;
+
+public interface ISiteService : IAsyncDisposable
 {
-    public interface ISiteService : IAsyncDisposable
-    {
-        #region site settings
+    #region site settings
 
-        Task<SiteSetting> GetDefaultSiteSetting();
+    Task<SiteSetting> GetDefaultSiteSetting();
 
-        #endregion
+    #endregion
 
-        #region slider
+    #region slider
 
-        Task<List<Slider>> GetAllActiveSliders();
+    Task<List<Slider>> GetAllActiveSliders();
 
-        #endregion
+    #endregion
 
-        #region site banners
+    #region site banners
 
-        Task<List<SiteBanner>> GetSiteBannerByPlacement(List<BannerPlacement> placements);
+    Task<List<SiteBanner>> GetSiteBannerByPlacement(List<BannerPlacement> placements);
 
-        #endregion
-    }
+    #endregion
 }

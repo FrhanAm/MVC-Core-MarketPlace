@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MarketPlace.Application.Services.Interfaces
+namespace MarketPlace.Application.Services.Interfaces;
+
+public interface IPasswordHelper
 {
-    public interface IPasswordHelper
-    {
-        string EncodePasswordMd5(string password);
-    }
+    string EncodePasswordMd5(string password);
 }

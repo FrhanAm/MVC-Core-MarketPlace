@@ -32,6 +32,7 @@ builder.Services.AddScoped<ISellerService, SellerService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IOrderServcie, OrderService>();
 builder.Services.AddScoped<ISellerWalletService, SellerWalletService>();
+builder.Services.AddScoped<IProductDiscountService, ProductDiscountService>();
 
 #endregion
 

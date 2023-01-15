@@ -1,10 +1,9 @@
-﻿namespace MarketPlace.Web.PresentationExtensions
+﻿namespace MarketPlace.Web.PresentationExtensions;
+
+public static class HttpExtensions
 {
-    public static class HttpExtensions
+    public static string GetUserIp(this HttpContext httpContext)
     {
-        public static string GetUserIp(this HttpContext httpContext)
-        {
-            return httpContext.Connection.RemoteIpAddress.ToString();
-        }
+        return httpContext.Connection.RemoteIpAddress.ToString();
     }
 }

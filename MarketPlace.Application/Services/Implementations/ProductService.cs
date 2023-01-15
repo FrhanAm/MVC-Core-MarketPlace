@@ -126,6 +126,14 @@ public class ProductService : IProductService
         return filter.SetProducts(allEntities).SetPaging(pager);
     }
 
+    public async Task<List<Product>> FilterGetProductsForSellerByProductName(string productName, long sellerId)
+    {
+        return await _productRepository.GetQuery()
+            .AsQueryable()
+            .Where(x => x.SellerId == sellerId && EF.Functions.Like(x.Title, $"%{productName}%"))
+            .ToListAsync();
+    }
+
     public async Task<CreateProductResult> CreateProduct(CreateProductDTO product, long sellerId, IFormFile productImage)
     {
         if (productImage == null) return CreateProductResult.HasNoImage;

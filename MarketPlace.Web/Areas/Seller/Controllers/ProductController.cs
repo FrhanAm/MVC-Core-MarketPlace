@@ -116,6 +116,18 @@ public class ProductController : SellerBaseController
 
     #endregion
 
+    #region get product json
+
+    [HttpGet("products-autocomplete")]
+    public async Task<IActionResult> GetSellerProductsJson(string productName)
+    {
+        var seller = await _sellerService.GetLastActiveSellerByUserId(User.GetUserId());
+        var data = await _productService.FilterGetProductsForSellerByProductName(productName, seller.Id);
+        return new JsonResult(data);
+    }
+
+    #endregion
+
     #endregion
 
     #region product gallery

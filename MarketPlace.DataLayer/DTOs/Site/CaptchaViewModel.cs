@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace MarketPlace.DataLayer.DTOs.Site
+namespace MarketPlace.DataLayer.DTOs.Site;
+
+public class CaptchaViewModel
 {
-    public class CaptchaViewModel
-    {
-        [Required(ErrorMessage = "لطفا {0} را وارد کنید")]
-        public string Captcha { get; set; }
-    }
+    [Required(ErrorMessage = "لطفا {0} را وارد کنید")]
+    public string Captcha { get; set; }
 }
