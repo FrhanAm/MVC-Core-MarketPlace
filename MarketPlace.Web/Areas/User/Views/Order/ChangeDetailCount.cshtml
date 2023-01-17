@@ -35,7 +35,8 @@
                                             <td class="product-price">@((detail.ProductPrice + detail.ProductColorPrice).ToString("#,0")) تومان</td>
                                             <td class="product_quantity">
                                                 <label>تعداد</label>
-                                                <input min="1" value="@detail.Count" type="number">
+                                                <input onchange="changeOpenOrderDetailCount(event, @detail.DetailId)" value="@detail.Count" type="number">
+                                                @*<input order-detail-count="@detail.DetailId" value="@detail.Count" type="number">*@
                                             </td>
                                             <td class="product-price">
                                                 @detail.GetOrderDetailWithDiscountPrice()

@@ -241,6 +241,21 @@ function removeProductfromOrder(detailId) {
     });
 }
 
+// one way to change count of order detail
+//function checkDetailCount() {
+//    $("input[order-detail-count]").on("change", function (event) {
+//        open_waiting();
+//        var detailId = $(this).attr("order-detail-count");
+//        $.get("/user/change-detail-count/" + detailId + "/" + event.target.value).then(res => {
+//            $("#user-open-order-wrapper").html(res);
+//            close_waiting();
+//        });
+//    });
+//}
+
+//checkDetailCount();
+
+// another way
 function changeOpenOrderDetailCount(event, detailId) {
     open_waiting();
     $.get("/user/change-detail-count/" + detailId + "/" + event.target.value).then(res => {

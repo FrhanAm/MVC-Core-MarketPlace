@@ -27,4 +27,16 @@ public class UserOpenOrderDetailItemDTO
     public string? ColorName { get; set; }
 
     public int? DiscountPercentage { get; set; }
+
+    public int GetOrderDetailWithDiscountPriceAmount() =>
+        this.DiscountPercentage != null
+        ? ((this.ProductPrice + this.ProductColorPrice) * this.DiscountPercentage.Value / 100 * this.Count)
+        : 0;
+
+    public int GetTotalAmountByDiscount() => (ProductPrice + ProductColorPrice) * Count - this.GetOrderDetailWithDiscountPriceAmount();
+
+    public string GetOrderDetailWithDiscountPrice() =>
+        this.DiscountPercentage != null
+        ? this.GetOrderDetailWithDiscountPriceAmount().ToString("#,0 تومان")
+        : "----";
 }

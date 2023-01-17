@@ -15,4 +15,6 @@ public class UserOpenOrderDTO
     public List<UserOpenOrderDetailItemDTO> Details { get; set; }
 
     public int GetTotalPrice() => Details.Sum(x => x.Count * (x.ProductPrice + x.ProductColorPrice));
+
+    public int GetTotalDiscounts() => Details.Sum(x => x.GetOrderDetailWithDiscountPriceAmount());
 }

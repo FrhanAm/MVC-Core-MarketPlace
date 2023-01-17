@@ -1,6 +1,7 @@
 ﻿using MarketPlace.Application.Services.Interfaces;
 using MarketPlace.DataLayer.DTOs.Orders;
 using MarketPlace.DataLayer.Entities.ProductOrder;
+using MarketPlace.DataLayer.Entities.Products;
 using MarketPlace.DataLayer.Entities.Wallet;
 using MarketPlace.DataLayer.Repository;
 using Microsoft.EntityFrameworkCore;
@@ -14,14 +15,20 @@ public class OrderService : IOrderServcie
     private readonly IGenericRepository<Order> _orderRepository;
     private readonly IGenericRepository<OrderDetail> _orderDetailRepository;
     private readonly ISellerWalletService _sellerWalletService;
+    private readonly IGenericRepository<ProductDiscount> _productDiscountRepository;
+    private readonly IGenericRepository<ProductDiscountUse> _productDiscountUseRepository;
 
     public OrderService(IGenericRepository<Order> orderRepository,
         IGenericRepository<OrderDetail> orderDetailRepository,
-        ISellerWalletService sellerWalletService)
+        ISellerWalletService sellerWalletService,
+        IGenericRepository<ProductDiscount> productDiscountRepository,
+        IGenericRepository<ProductDiscountUse> productDiscountUseRepository)
     {
         _orderDetailRepository = orderDetailRepository;
         _orderRepository = orderRepository;
         _sellerWalletService = sellerWalletService;
+        _productDiscountRepository = productDiscountRepository;
+        _productDiscountUseRepository= productDiscountUseRepository;
     }
 
     #endregion
@@ -45,9 +52,9 @@ public class OrderService : IOrderServcie
             await AddOrderForUser(userId);
 
         var userOpenOrder = await _orderRepository.GetQuery()
-            .Include(x => x.OrderDetails)
+            .Include(x => x.OrderDetails.Where(y => !y.IsDeleted))
             .ThenInclude(x => x.ProductColor)
-            .Include(x => x.OrderDetails)
+            .Include(x => x.OrderDetails.Where(y => !y.IsDeleted))
             .ThenInclude(x => x.Product)
             .ThenInclude(x => x.ProductDiscounts)
             .SingleOrDefaultAsync(x => x.UserId == userId && !x.IsPaid);
@@ -59,19 +66,31 @@ public class OrderService : IOrderServcie
     {
         var userOpenOrder = await GetUserLatestOpenOrder(userId);
         int totalPrice = 0;
+        int discount = 0;
 
         foreach (var detail in userOpenOrder.OrderDetails)
         {
             var oneProductPrice = detail.ProductColor != null
                 ? detail.Product.Price + detail.ProductColor.Price
                 : detail.Product.Price;
-            totalPrice += detail.Count * oneProductPrice;
+
+            var productDiscount = await _productDiscountRepository.GetQuery()
+                .Include(x => x.ProductDiscountUses)
+                .FirstOrDefaultAsync(x => x.ProductId == detail.ProductId
+                && x.DiscountNumber - x.ProductDiscountUses.Count > 0);
+
+            if (productDiscount != null)
+            {
+                discount = (int)Math.Ceiling(oneProductPrice * productDiscount.Percentage / (decimal)100);
+            }
+
+            totalPrice += detail.Count * (oneProductPrice - discount);
         }
 
         return totalPrice;
     }
 
-    public async Task PayOrderProductPriceToSeller(long userId)
+    public async Task PayOrderProductPriceToSeller(long userId, long refId)
     {
         var openOrder = await GetUserLatestOpenOrder(userId);
 
@@ -80,23 +99,45 @@ public class OrderService : IOrderServcie
             var productPrice = detail.Product.Price;
             var productColorPrice = detail.ProductColor?.Price ?? 0;
             var discount = 0;
-            var totalPrice = detail.Count * (productPrice + productColorPrice) - discount;
+            var totalPrice = detail.Count * (productPrice + productColorPrice);
+            var productDiscount = await _productDiscountRepository.GetQuery()
+                .Include(x => x.ProductDiscountUses)
+                .OrderByDescending(x => x.CreateDate)
+                .FirstOrDefaultAsync(x => x.ProductId == detail.ProductId
+                && x.DiscountNumber - x.ProductDiscountUses.Count > 0);
+
+            if (productDiscount != null)
+            {
+                discount = (int)Math.Ceiling(totalPrice * productDiscount.Percentage / (decimal)100);
+
+                var newDiscountUse = new ProductDiscountUse
+                {
+                    UserId = userId,
+                    ProductDiscountId = productDiscount.Id,
+                };
+
+                await _productDiscountUseRepository.AddEntity(newDiscountUse);
+                // await _productDiscountUseRepository.SaveChanges();
+            }
+
+            var totalPriceWithDiscount = totalPrice - discount;
 
             await _sellerWalletService.AddWallet(new SellerWallet
             {
                 SellerId = detail.Product.SellerId,
-                Price = (int)Math.Ceiling(totalPrice * detail.Product.SiteProfit / (double)100),
+                Price = (int)Math.Ceiling(totalPriceWithDiscount * (100 - detail.Product.SiteProfit) / (double)100),
                 TransactionType = TransactionType.Deposit,
-                Description = $"پرداخت مبلغ {totalPrice} تومان جهت فروش {detail.Product.Title} به تعداد {detail.Count} عدد با سهم تایین شده ی {100 - detail.Product.SiteProfit} درصد"
+                Description = $"پرداخت مبلغ {totalPriceWithDiscount} تومان جهت فروش {detail.Product.Title} به تعداد {detail.Count} عدد با سهم تایین شده ی {100 - detail.Product.SiteProfit} درصد"
             });
 
-            detail.ProductPrice = totalPrice;
+            detail.ProductPrice = totalPriceWithDiscount;
             detail.ProductColorPrice = productColorPrice;
             _orderDetailRepository.EditEntity(detail);
         }
 
         openOrder.IsPaid = true;
-        // todo: set description and tracking code in order
+        openOrder.TracingCode = refId.ToString();
+        openOrder.PaymentDate = DateTime.Now;
         _orderRepository.EditEntity(openOrder);
         await _orderRepository.SaveChanges();
     }
@@ -110,7 +151,7 @@ public class OrderService : IOrderServcie
         var openOrder = await GetUserLatestOpenOrder(userId);
 
         var similarOrder = openOrder.OrderDetails.SingleOrDefault(x => x.ProductId == order.ProductId
-                            && x.ProductColorId == order.ProductColorId);
+                            && x.ProductColorId == order.ProductColorId && !x.IsDeleted);
 
         if (similarOrder == null)
         {

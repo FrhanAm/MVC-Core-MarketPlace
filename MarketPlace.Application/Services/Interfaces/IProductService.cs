@@ -20,6 +20,7 @@ public interface IProductService : IAsyncDisposable
     Task AddProductSelectedCategories(long productId, List<long> selectedCategories);
     Task AddProductSelectedColors(long productId, List<CreateProductColorDTO> colors);
     Task<List<Product>> FilterGetProductsForSellerByProductName(string productName, long sellerId);
+    Task<List<ProductDiscount>> GetAllOffProducts(int take);
 
     #endregion
 
@@ -39,6 +40,8 @@ public interface IProductService : IAsyncDisposable
 
     Task<List<ProductCategory>> GetAllProductCategoriesByParentId(long? parentId);
 	Task<List<ProductCategory>> GetAllActiveProductCategories();
+    Task<List<Product>> GetCategoryProductsByCategoryName(string categoryName, int count = 12);
+    Task<ProductCategory> GetProductCategoryByUrlName(string productCategoryUrlName);
 
     #endregion
 

@@ -21,7 +21,7 @@ public class ProductDiscount : BaseEntity
 	#region relations
 
 	public Product Product { get; set; }
-	public ICollection<ProductDiscountUse> productDiscountUses { get; set; }
+	public ICollection<ProductDiscountUse> ProductDiscountUses { get; set; }
 
 	#endregion
 }

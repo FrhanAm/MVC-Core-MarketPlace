@@ -22,6 +22,7 @@ public class ProductService : IProductService
     private readonly IGenericRepository<ProductColor> _productColorRepository;
     private readonly IGenericRepository<ProductGallery> _productGalleryRepository;
     private readonly IGenericRepository<ProductFeature> _productFeatureRepository;
+    private readonly IGenericRepository<ProductDiscount> _productDiscountRepository;
 
     public ProductService(
         IGenericRepository<Product> productRepository,
@@ -29,7 +30,8 @@ public class ProductService : IProductService
         IGenericRepository<ProductSelectedCategory> productSelectedCategoryRepository,
         IGenericRepository<ProductColor> productColorRepository,
         IGenericRepository<ProductGallery> productGalleryRepository,
-        IGenericRepository<ProductFeature> productFeatureRepository
+        IGenericRepository<ProductFeature> productFeatureRepository,
+        IGenericRepository<ProductDiscount> productDiscountRepository
         )
     {
         _productRepository = productRepository;
@@ -38,6 +40,7 @@ public class ProductService : IProductService
         _productColorRepository = productColorRepository;
         _productGalleryRepository = productGalleryRepository;
         _productFeatureRepository = productFeatureRepository;
+        _productDiscountRepository = productDiscountRepository;
     }
 
     #endregion
@@ -384,6 +387,18 @@ public class ProductService : IProductService
         };
     }
 
+    public async Task<List<ProductDiscount>> GetAllOffProducts(int take)
+    {
+        return await _productDiscountRepository.GetQuery().AsQueryable()
+            .Include(x => x.Product)
+            .Where(x => x.ExpireDate >= DateTime.Now)
+            .OrderByDescending(x => x.ExpireDate)
+            .Distinct()
+            .Skip(0)
+            .Take(take)
+            .ToListAsync();
+    }
+
     #endregion
 
     #region product gallery
@@ -494,6 +509,26 @@ public class ProductService : IProductService
     {
         return await _productCategoryRepository.GetQuery().AsQueryable()
             .Where(x => x.IsActive && !x.IsDeleted).ToListAsync();
+    }
+
+    public async Task<List<Product>> GetCategoryProductsByCategoryName(string categoryName, int count = 12)
+    {
+        var category = await _productCategoryRepository.GetQuery().SingleOrDefaultAsync(x => x.UrlName == categoryName);
+        if (category == null) return null;
+        return await _productSelectedCategoryRepository.GetQuery().AsQueryable()
+            .Include(x => x.Product)
+            .Where(x => x.ProductCategoryId == category.Id && x.Product.IsActive && !x.IsDeleted)
+            .OrderByDescending(x => x.CreateDate)
+            .Distinct()
+            .Take(count)
+            .Select(x => x.Product)
+            .ToListAsync();
+    }
+
+    public async Task<ProductCategory> GetProductCategoryByUrlName(string productCategoryUrlName)
+    {
+        return await _productCategoryRepository.GetQuery().AsQueryable()
+            .SingleOrDefaultAsync(x => x.UrlName == productCategoryUrlName);
     }
 
     #endregion

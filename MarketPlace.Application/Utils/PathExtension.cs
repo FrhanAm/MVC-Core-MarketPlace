@@ -2,6 +2,12 @@
 
 public static class PathExtension
 {
+    #region domain address
+
+    public static string DomainAddress = "https://localhost:7224";
+
+    #endregion
+
     #region default images
 
     public static string DefaultAvatar = "/img/defaults/avatar.jpg";

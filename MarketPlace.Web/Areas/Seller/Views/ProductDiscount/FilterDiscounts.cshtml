@@ -35,7 +35,7 @@
                         <div class="tab-pane fade active show" id="account-details">
                             <h3>
                                 @ViewData["Title"]
-                                <a asp-area="Seller" asp-controller="ProductDiscount" asp-action="CreateDiscount">ثبت تخفیف جدید</a>
+                                <a class="btn btn-outline-primary" asp-area="Seller" asp-controller="ProductDiscount" asp-action="CreateDiscount">ثبت تخفیف جدید</a>
                             </h3>
                             <form method="get" asp-area="Seller" asp-controller="SellerWallet" asp-action="Index" id="filter-form">
                                 <input type="hidden" asp-for="PageId" />

@@ -14,13 +14,15 @@ public class HomeController : SiteBaseController
     private readonly IContactService _contactService;
     private readonly ICaptchaValidator _captchaValidator;
     private readonly ISiteService _siteService;
+    private readonly IProductService _productService;
 
     public HomeController(IContactService contactService, ICaptchaValidator captchaValidator
-        , ISiteService siteService)
+        , ISiteService siteService, IProductService productService)
     {
         _contactService = contactService;
         _captchaValidator = captchaValidator;
         _siteService = siteService;
+        _productService = productService;
     }
 
     #endregion
@@ -35,6 +37,8 @@ public class HomeController : SiteBaseController
             BannerPlacement.Home_2,
             BannerPlacement.Home_3
         });
+
+        ViewData["OffProducts"] = await _productService.GetAllOffProducts(12);
 
         return View();
     }
